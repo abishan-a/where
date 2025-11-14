@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View bus route schedules and plan your journey with TransitHub">
+    <title>Route Schedules - TransitHub</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header Navigation -->
+    <header role="banner">
+        <div class="nav-container">
+            <div class="logo" aria-label="TransitHub Logo">
+                <span class="logo-icon" aria-hidden="true">🚌</span>
+                <span>TransitHub</span>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html" class="active" aria-current="page">Routes</a></li>
+                    <li><a href="tracking.html">Track Bus</a></li>
+                    <li><a href="payment.html">Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                    <li><a href="driver-login.html">Driver Portal</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Page Header -->
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-content">
+                <h1 id="page-title">Route Schedules</h1>
+                <p>Find the perfect route for your journey with detailed schedules and stop information</p>
+            </div>
+        </section>
+
+        <!-- Search and Filter Section -->
+        <section class="section">
+            <div class="container">
+                <div class="card">
+                    <h2 class="card-title">Search Routes</h2>
+                    <form class="search-form" role="search" aria-label="Route search">
+                        <div class="form-group">
+                            <label for="origin" class="form-label">From (Origin)</label>
+                            <input 
+                                type="text" 
+                                id="origin" 
+                                class="form-input" 
+                                placeholder="Enter origin location"
+                                aria-required="true"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="destination" class="form-label">To (Destination)</label>
+                            <input 
+                                type="text" 
+                                id="destination" 
+                                class="form-input" 
+                                placeholder="Enter destination location"
+                                aria-required="true"
+                            >
+                        </div>
+                        <button type="submit" class="btn btn-primary">Search Routes</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Routes List Section -->
+        <section class="section" aria-labelledby="routes-title">
+            <div class="container">
+                <h2 id="routes-title" class="section-title">Available Routes</h2>
+                
+                <!-- Route Cards -->
+                <div class="routes-list">
+                    <!-- Route 138 -->
+                    <article class="card route-card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Route 138</h3>
+                                <p class="route-subtitle">Fort ↔ Nugegoda</p>
+                            </div>
+                            <button class="btn btn-outline btn-small favorite-btn" aria-label="Add to favorites">
+                                ⭐
+                            </button>
+                        </div>
+                        <div class="route-details">
+                            <div class="route-info">
+                                <p><strong>Frequency:</strong> Every 10-15 minutes</p>
+                                <p><strong>Operating Hours:</strong> 5:00 AM - 11:00 PM</p>
+                                <p><strong>Fare Range:</strong> LKR 20 - LKR 50</p>
+                            </div>
+                            <div class="route-preview" id="route-preview-138">
+                                <!-- Map will be inserted here by JavaScript -->
+                            </div>
+                            <button class="btn btn-primary" onclick="showRouteDetails('route-138')">
+                                View Full Schedule
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Route 100 -->
+                    <article class="card route-card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Route 100</h3>
+                                <p class="route-subtitle">Kollupitiya ↔ Dehiwala</p>
+                            </div>
+                            <button class="btn btn-outline btn-small favorite-btn" aria-label="Add to favorites">
+                                ⭐
+                            </button>
+                        </div>
+                        <div class="route-details">
+                            <div class="route-info">
+                                <p><strong>Frequency:</strong> Every 8-12 minutes</p>
+                                <p><strong>Operating Hours:</strong> 5:30 AM - 10:30 PM</p>
+                                <p><strong>Fare Range:</strong> LKR 25 - LKR 60</p>
+                            </div>
+                            <div class="route-preview" id="route-preview-100">
+                                <!-- Map will be inserted here by JavaScript -->
+                            </div>
+                            <button class="btn btn-primary" onclick="showRouteDetails('route-100')">
+                                View Full Schedule
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Route 177 -->
+                    <article class="card route-card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Route 177</h3>
+                                <p class="route-subtitle">Bambalapitiya ↔ Pettah</p>
+                            </div>
+                            <button class="btn btn-outline btn-small favorite-btn" aria-label="Add to favorites">
+                                ⭐
+                            </button>
+                        </div>
+                        <div class="route-details">
+                            <div class="route-info">
+                                <p><strong>Frequency:</strong> Every 15-20 minutes</p>
+                                <p><strong>Operating Hours:</strong> 6:00 AM - 10:00 PM</p>
+                                <p><strong>Fare Range:</strong> LKR 20 - LKR 45</p>
+                            </div>
+                            <div class="route-preview" id="route-preview-177">
+                                <!-- Map will be inserted here by JavaScript -->
+                            </div>
+                            <button class="btn btn-primary" onclick="showRouteDetails('route-177')">
+                                View Full Schedule
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schedule Table Section -->
+        <section class="section" aria-labelledby="schedule-title">
+            <div class="container">
+                <h2 id="schedule-title" class="section-title">Detailed Schedule</h2>
+                <p class="section-subtitle">Select a route above to view its complete schedule</p>
+                
+                <div class="table-container">
+                    <table role="table" aria-label="Route schedule">
+                        <thead>
+                            <tr>
+                                <th>Stop Name</th>
+                                <th>Address</th>
+                                <th>Arrival Time</th>
+                                <th>Distance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-table-body">
+                            <tr>
+                                <td colspan="4" class="text-center">Select a route to view schedule</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TransitHub</h4>
+                <p>Your trusted companion for public transport in Sri Lanka. Making daily commutes easier and more efficient.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Route Schedules</a></li>
+                    <li><a href="tracking.html">Bus Tracking</a></li>
+                    <li><a href="payment.html">Fare Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Email: info@transithub.lk</li>
+                    <li>Phone: +94 11 234 5678</li>
+                    <li>Address: Colombo, Sri Lanka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#" aria-label="Facebook">Facebook</a></li>
+                    <li><a href="#" aria-label="Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Instagram">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TransitHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/map.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Route-specific JavaScript -->
+    <script>
+        // Sample route schedule data
+        const routeSchedules = {
+            'route-138': [
+                { stop: 'Fort Bus Stand', address: 'Fort, Colombo 01', time: '05:00', distance: '0 km' },
+                { stop: 'Pettah Bus Stand', address: 'Pettah, Colombo 11', time: '05:15', distance: '2.5 km' },
+                { stop: 'Maradana Station', address: 'Maradana, Colombo 10', time: '05:30', distance: '4.2 km' },
+                { stop: 'Borella Junction', address: 'Borella, Colombo 08', time: '05:45', distance: '6.8 km' },
+                { stop: 'Nugegoda', address: 'Nugegoda, Colombo 05', time: '06:00', distance: '9.5 km' }
+            ],
+            'route-100': [
+                { stop: 'Kollupitiya', address: 'Kollupitiya, Colombo 03', time: '05:30', distance: '0 km' },
+                { stop: 'Fort Bus Stand', address: 'Fort, Colombo 01', time: '05:40', distance: '3.2 km' },
+                { stop: 'Pettah Bus Stand', address: 'Pettah, Colombo 11', time: '05:50', distance: '5.7 km' },
+                { stop: 'Maradana Station', address: 'Maradana, Colombo 10', time: '06:00', distance: '7.1 km' },
+                { stop: 'Dehiwala', address: 'Dehiwala, Colombo 05', time: '06:20', distance: '12.3 km' }
+            ],
+            'route-177': [
+                { stop: 'Bambalapitiya', address: 'Bambalapitiya, Colombo 04', time: '06:00', distance: '0 km' },
+                { stop: 'Kollupitiya', address: 'Kollupitiya, Colombo 03', time: '06:10', distance: '2.1 km' },
+                { stop: 'Fort Bus Stand', address: 'Fort, Colombo 01', time: '06:20', distance: '4.5 km' },
+                { stop: 'Pettah Bus Stand', address: 'Pettah, Colombo 11', time: '06:30', distance: '6.8 km' }
+            ]
+        };
+
+        // Show route details in schedule table
+        function showRouteDetails(routeId) {
+            const schedule = routeSchedules[routeId];
+            const tableBody = document.getElementById('schedule-table-body');
+            
+            if (!schedule || !tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            schedule.forEach(stop => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${stop.stop}</strong></td>
+                    <td>${stop.address}</td>
+                    <td>${stop.time}</td>
+                    <td>${stop.distance}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Scroll to schedule table
+            document.getElementById('schedule-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Initialize route preview maps
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize preview maps for each route
+            setTimeout(() => {
+                if (typeof initRoutePreviewMap === 'function') {
+                    // Note: This would need to be implemented in map.js
+                    console.log('Route preview maps would be initialized here');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+

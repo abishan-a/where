@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register your bus with TransitHub">
+    <title>Bus Registration - TransitHub</title>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Bus registration specific styles */
+        .registration-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xl);
+            position: relative;
+        }
+        
+        .registration-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--background-color);
+            z-index: 0;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius-round);
+            background-color: var(--background-color);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-sm);
+            font-weight: var(--font-weight-bold);
+            transition: all var(--transition-base);
+        }
+        
+        .step.active .step-number {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .step.completed .step-number {
+            background-color: var(--success-color);
+            color: var(--white);
+        }
+        
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+        }
+        
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--spacing-xl);
+        }
+        
+        .bus-preview-card {
+            background-color: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-top: var(--spacing-lg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header Navigation -->
+    <header role="banner">
+        <div class="nav-container">
+            <div class="logo" aria-label="TransitHub Logo">
+                <span class="logo-icon" aria-hidden="true">🚌</span>
+                <span>TransitHub</span>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="driver-dashboard.html">Dashboard</a></li>
+                    <li><a href="bus-registration.html" class="active" aria-current="page">Register Bus</a></li>
+                    <li><a href="#" onclick="logoutDriver(); return false;">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Page Header -->
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-content">
+                <h1 id="page-title">Bus Registration</h1>
+                <p>Register your bus to start tracking and serving passengers</p>
+            </div>
+        </section>
+
+        <!-- Registration Form -->
+        <section class="section">
+            <div class="container">
+                <div class="card">
+                    <!-- Registration Steps Indicator -->
+                    <div class="registration-steps">
+                        <div class="step active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Bus Details</div>
+                        </div>
+                        <div class="step" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Route Assignment</div>
+                        </div>
+                        <div class="step" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Review & Submit</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Bus Details -->
+                    <div id="step-1" class="step-content active">
+                        <h2>Bus Information</h2>
+                        <form id="bus-registration-form" data-validate>
+                            <div class="form-group">
+                                <label for="bus-number" class="form-label">Bus Number / ID</label>
+                                <input 
+                                    type="text" 
+                                    id="bus-number" 
+                                    class="form-input" 
+                                    placeholder="e.g., bus-001"
+                                    required
+                                    aria-required="true"
+                                >
+                                <small style="color: var(--text-light);">This will be your unique bus identifier</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bus-type" class="form-label">Bus Type</label>
+                                <select id="bus-type" class="form-select" required aria-required="true">
+                                    <option value="">Select bus type...</option>
+                                    <option value="standard">Standard Bus</option>
+                                    <option value="air-conditioned">Air-Conditioned</option>
+                                    <option value="luxury">Luxury Bus</option>
+                                    <option value="mini">Mini Bus</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bus-capacity" class="form-label">Passenger Capacity</label>
+                                <input 
+                                    type="number" 
+                                    id="bus-capacity" 
+                                    class="form-input" 
+                                    placeholder="e.g., 50"
+                                    min="10"
+                                    max="100"
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bus-registration" class="form-label">Vehicle Registration Number</label>
+                                <input 
+                                    type="text" 
+                                    id="bus-registration" 
+                                    class="form-input" 
+                                    placeholder="e.g., WP-ABC-1234"
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bus-manufacturer" class="form-label">Manufacturer / Model</label>
+                                <input 
+                                    type="text" 
+                                    id="bus-manufacturer" 
+                                    class="form-input" 
+                                    placeholder="e.g., Tata Starbus"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bus-year" class="form-label">Year of Manufacture</label>
+                                <input 
+                                    type="number" 
+                                    id="bus-year" 
+                                    class="form-input" 
+                                    placeholder="e.g., 2020"
+                                    min="2000"
+                                    max="2024"
+                                >
+                            </div>
+
+                            <div class="form-navigation">
+                                <div></div>
+                                <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                                    Next: Route Assignment →
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: Route Assignment -->
+                    <div id="step-2" class="step-content">
+                        <h2>Route Assignment</h2>
+                        <form>
+                            <div class="form-group">
+                                <label for="assigned-route" class="form-label">Select Route</label>
+                                <select id="assigned-route" class="form-select" required aria-required="true">
+                                    <option value="">Select a route...</option>
+                                    <option value="138">Route 138 - Fort to Nugegoda</option>
+                                    <option value="100">Route 100 - Kollupitiya to Dehiwala</option>
+                                    <option value="177">Route 177 - Bambalapitiya to Pettah</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="route-direction" class="form-label">Direction</label>
+                                <select id="route-direction" class="form-select" required aria-required="true">
+                                    <option value="">Select direction...</option>
+                                    <option value="forward">Forward (Origin to Destination)</option>
+                                    <option value="reverse">Reverse (Destination to Origin)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="operating-hours-start" class="form-label">Operating Hours - Start</label>
+                                <input 
+                                    type="time" 
+                                    id="operating-hours-start" 
+                                    class="form-input" 
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="operating-hours-end" class="form-label">Operating Hours - End</label>
+                                <input 
+                                    type="time" 
+                                    id="operating-hours-end" 
+                                    class="form-input" 
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Operating Days</label>
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--spacing-sm);">
+                                    <label style="text-align: center;">
+                                        <input type="checkbox" value="monday" checked>
+                                        <div style="font-size: var(--font-size-small);">Mon</div>
+                                    </label>
+                                    <label style="text-align: center;">
+                                        <input type="checkbox" value="tuesday" checked>
+                                        <div style="font-size: var(--font-size-small);">Tue</div>
+                                    </label>
+                                    <label style="text-align: center;">
+                                        <input type="checkbox" value="wednesday" checked>
+                                        <div style="font-size: var(--font-size-small);">Wed</div>
+                                    </label>
+                                    <label style="text-align: center;">
+                                        <input type="checkbox" value="thursday" checked>
+                                        <div style="font-size: var(--font-size-small);">Thu</div>
+                                    </label>
+                                    <label style="text-align: center;">
+                                        <input type="checkbox" value="friday" checked>
+                                        <div style="font-size: var(--font-size-small);">Fri</div>
+                                    </label>
+                                    <label style="text-align: center;">
+                                        <input type="checkbox" value="saturday" checked>
+                                        <div style="font-size: var(--font-size-small);">Sat</div>
+                                    </label>
+                                    <label style="text-align: center;">
+                                        <input type="checkbox" value="sunday">
+                                        <div style="font-size: var(--font-size-small);">Sun</div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-navigation">
+                                <button type="button" class="btn btn-outline" onclick="previousStep(1)">
+                                    ← Back
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                                    Next: Review →
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Step 3: Review & Submit -->
+                    <div id="step-3" class="step-content">
+                        <h2>Review & Submit</h2>
+                        <p>Please review your bus registration details before submitting.</p>
+                        
+                        <div class="bus-preview-card">
+                            <h3>Bus Information</h3>
+                            <div id="review-bus-details">
+                                <!-- Details will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="bus-preview-card">
+                            <h3>Route Information</h3>
+                            <div id="review-route-details">
+                                <!-- Details will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: var(--spacing-lg);">
+                            <label>
+                                <input type="checkbox" id="confirm-registration" required>
+                                I confirm that all information provided is accurate and I am authorized to register this bus.
+                            </label>
+                        </div>
+
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-outline" onclick="previousStep(2)">
+                                ← Back
+                            </button>
+                            <button type="button" class="btn btn-primary btn-large" onclick="submitRegistration()">
+                                Submit Registration
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TransitHub</h4>
+                <p>Your trusted companion for public transport in Sri Lanka. Making daily commutes easier and more efficient.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Route Schedules</a></li>
+                    <li><a href="tracking.html">Bus Tracking</a></li>
+                    <li><a href="payment.html">Fare Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Email: info@transithub.lk</li>
+                    <li>Phone: +94 11 234 5678</li>
+                    <li>Address: Colombo, Sri Lanka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#" aria-label="Facebook">Facebook</a></li>
+                    <li><a href="#" aria-label="Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Instagram">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TransitHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+    
+    <!-- Bus registration specific JavaScript -->
+    <script>
+        // Check if driver is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('driverLoggedIn');
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                window.location.href = 'driver-login.html';
+                return;
+            }
+        });
+
+        // Navigation between steps
+        function nextStep(stepNumber) {
+            // Validate current step
+            const currentStep = stepNumber - 1;
+            if (currentStep === 1) {
+                // Validate step 1
+                const busNumber = document.getElementById('bus-number').value;
+                const busType = document.getElementById('bus-type').value;
+                if (!busNumber || !busType) {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Please fill in all required fields', 'error');
+                    }
+                    return;
+                }
+            }
+            
+            // Hide current step
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show next step
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+            
+            // Update step indicators
+            updateStepIndicators(stepNumber);
+            
+            // If step 3, populate review
+            if (stepNumber === 3) {
+                populateReview();
+            }
+        }
+
+        function previousStep(stepNumber) {
+            // Hide current step
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show previous step
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+            
+            // Update step indicators
+            updateStepIndicators(stepNumber);
+        }
+
+        function updateStepIndicators(currentStep) {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function populateReview() {
+            // Bus details
+            const busDetails = `
+                <p><strong>Bus Number:</strong> ${document.getElementById('bus-number').value}</p>
+                <p><strong>Bus Type:</strong> ${document.getElementById('bus-type').value}</p>
+                <p><strong>Capacity:</strong> ${document.getElementById('bus-capacity').value} passengers</p>
+                <p><strong>Registration:</strong> ${document.getElementById('bus-registration').value}</p>
+                <p><strong>Manufacturer:</strong> ${document.getElementById('bus-manufacturer').value || 'N/A'}</p>
+                <p><strong>Year:</strong> ${document.getElementById('bus-year').value || 'N/A'}</p>
+            `;
+            document.getElementById('review-bus-details').innerHTML = busDetails;
+            
+            // Route details
+            const routeSelect = document.getElementById('assigned-route');
+            const routeText = routeSelect.options[routeSelect.selectedIndex].text;
+            const routeDetails = `
+                <p><strong>Route:</strong> ${routeText}</p>
+                <p><strong>Direction:</strong> ${document.getElementById('route-direction').value}</p>
+                <p><strong>Operating Hours:</strong> ${document.getElementById('operating-hours-start').value} - ${document.getElementById('operating-hours-end').value}</p>
+            `;
+            document.getElementById('review-route-details').innerHTML = routeDetails;
+        }
+
+        function submitRegistration() {
+            const confirmCheckbox = document.getElementById('confirm-registration');
+            if (!confirmCheckbox.checked) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Please confirm the registration', 'error');
+                }
+                return;
+            }
+            
+            const submitBtn = document.querySelector('#step-3 .btn-primary');
+            if (typeof showLoading === 'function') {
+                showLoading(submitBtn);
+            }
+            
+            // Simulate registration submission
+            setTimeout(() => {
+                if (typeof hideLoading === 'function') {
+                    hideLoading(submitBtn);
+                }
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('Bus registered successfully!', 'success');
+                }
+                
+                // Redirect to dashboard after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'driver-dashboard.html';
+                }, 2000);
+            }, 2000);
+        }
+
+        function logoutDriver() {
+            localStorage.removeItem('driverLoggedIn');
+            localStorage.removeItem('driverLicense');
+            window.location.href = 'driver-login.html';
+        }
+
+        // Make functions globally accessible
+        window.nextStep = nextStep;
+        window.previousStep = previousStep;
+        window.submitRegistration = submitRegistration;
+        window.logoutDriver = logoutDriver;
+    </script>
+</body>
+</html>
+

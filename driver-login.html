@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Driver login and registration for TransitHub">
+    <title>Driver Portal - TransitHub</title>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Driver login specific styles */
+        .auth-container {
+            max-width: 450px;
+            margin: var(--spacing-xxl) auto;
+            padding: var(--spacing-xl);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            border-bottom: 2px solid var(--background-color);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: var(--spacing-md);
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-light);
+            transition: all var(--transition-base);
+        }
+        
+        .auth-tab:hover {
+            color: var(--primary-color);
+        }
+        
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .driver-info-box {
+            background-color: rgba(30, 136, 229, 0.1);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-lg);
+            border-left: 4px solid var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header Navigation -->
+    <header role="banner">
+        <div class="nav-container">
+            <div class="logo" aria-label="TransitHub Logo">
+                <span class="logo-icon" aria-hidden="true">🚌</span>
+                <span>TransitHub</span>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Routes</a></li>
+                    <li><a href="tracking.html">Track Bus</a></li>
+                    <li><a href="payment.html">Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                    <li><a href="driver-login.html" class="active" aria-current="page">Driver Portal</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Page Header -->
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-content">
+                <h1 id="page-title">Driver Portal</h1>
+                <p>Access your driver dashboard to register buses and track your routes</p>
+            </div>
+        </section>
+
+        <!-- Authentication Section -->
+        <section class="section">
+            <div class="container">
+                <div class="auth-container">
+                    <div class="card">
+                        <!-- Tab Navigation -->
+                        <div class="auth-tabs" role="tablist">
+                            <button 
+                                class="auth-tab active" 
+                                data-tab="login"
+                                role="tab"
+                                aria-selected="true"
+                            >
+                                Login
+                            </button>
+                            <button 
+                                class="auth-tab" 
+                                data-tab="register"
+                                role="tab"
+                                aria-selected="false"
+                            >
+                                Register
+                            </button>
+                        </div>
+
+                        <!-- Login Form -->
+                        <div id="login-form" class="auth-form active" role="tabpanel">
+                            <h2>Driver Login</h2>
+                            <form id="driver-login-form" data-validate aria-label="Driver login form">
+                                <div class="form-group">
+                                    <label for="login-license" class="form-label">Driver License Number</label>
+                                    <input 
+                                        type="text" 
+                                        id="login-license" 
+                                        class="form-input" 
+                                        placeholder="Enter your license number"
+                                        required
+                                        aria-required="true"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="login-password" class="form-label">Password</label>
+                                    <input 
+                                        type="password" 
+                                        id="login-password" 
+                                        class="form-input" 
+                                        placeholder="Enter your password"
+                                        required
+                                        aria-required="true"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="remember-me">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    Login
+                                </button>
+                                <p class="text-center" style="margin-top: var(--spacing-md);">
+                                    <a href="#">Forgot password?</a>
+                                </p>
+                            </form>
+                        </div>
+
+                        <!-- Registration Form -->
+                        <div id="register-form" class="auth-form" role="tabpanel">
+                            <h2>Driver Registration</h2>
+                            <div class="driver-info-box">
+                                <p><strong>Note:</strong> You must have a valid driver's license and be authorized by the transport authority to register as a driver.</p>
+                            </div>
+                            <form id="driver-register-form" data-validate aria-label="Driver registration form">
+                                <div class="form-group">
+                                    <label for="reg-name" class="form-label">Full Name</label>
+                                    <input 
+                                        type="text" 
+                                        id="reg-name" 
+                                        class="form-input" 
+                                        placeholder="Enter your full name"
+                                        required
+                                        aria-required="true"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-license" class="form-label">Driver License Number</label>
+                                    <input 
+                                        type="text" 
+                                        id="reg-license" 
+                                        class="form-input" 
+                                        placeholder="Enter your license number"
+                                        required
+                                        aria-required="true"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-phone" class="form-label">Phone Number</label>
+                                    <input 
+                                        type="tel" 
+                                        id="reg-phone" 
+                                        class="form-input" 
+                                        placeholder="+94 77 123 4567"
+                                        required
+                                        aria-required="true"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-email" class="form-label">Email Address</label>
+                                    <input 
+                                        type="email" 
+                                        id="reg-email" 
+                                        class="form-input" 
+                                        placeholder="your.email@example.com"
+                                        required
+                                        aria-required="true"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-password" class="form-label">Password</label>
+                                    <input 
+                                        type="password" 
+                                        id="reg-password" 
+                                        class="form-input" 
+                                        placeholder="Create a strong password"
+                                        required
+                                        aria-required="true"
+                                        minlength="8"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-confirm-password" class="form-label">Confirm Password</label>
+                                    <input 
+                                        type="password" 
+                                        id="reg-confirm-password" 
+                                        class="form-input" 
+                                        placeholder="Confirm your password"
+                                        required
+                                        aria-required="true"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="reg-terms" required>
+                                        I agree to the <a href="#">Terms and Conditions</a>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    Register
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TransitHub</h4>
+                <p>Your trusted companion for public transport in Sri Lanka. Making daily commutes easier and more efficient.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Route Schedules</a></li>
+                    <li><a href="tracking.html">Bus Tracking</a></li>
+                    <li><a href="payment.html">Fare Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Email: info@transithub.lk</li>
+                    <li>Phone: +94 11 234 5678</li>
+                    <li>Address: Colombo, Sri Lanka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#" aria-label="Facebook">Facebook</a></li>
+                    <li><a href="#" aria-label="Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Instagram">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TransitHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+    
+    <!-- Driver login specific JavaScript -->
+    <script>
+        // Tab switching
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Update tab states
+                document.querySelectorAll('.auth-tab').forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
+                
+                // Update form visibility
+                document.querySelectorAll('.auth-form').forEach(form => {
+                    form.classList.remove('active');
+                });
+                document.getElementById(`${tabId}-form`).classList.add('active');
+            });
+        });
+
+        // Handle login form submission
+        document.getElementById('driver-login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const license = document.getElementById('login-license').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Simulate login (in production, this would be an API call)
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (typeof showLoading === 'function') {
+                showLoading(submitBtn);
+            }
+            
+            setTimeout(() => {
+                // Store driver session (in production, use secure session management)
+                localStorage.setItem('driverLoggedIn', 'true');
+                localStorage.setItem('driverLicense', license);
+                
+                if (typeof hideLoading === 'function') {
+                    hideLoading(submitBtn);
+                }
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('Login successful! Redirecting...', 'success');
+                }
+                
+                // Redirect to driver dashboard
+                setTimeout(() => {
+                    window.location.href = 'driver-dashboard.html';
+                }, 1500);
+            }, 1000);
+        });
+
+        // Handle registration form submission
+        document.getElementById('driver-register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+            
+            // Validate password match
+            if (password !== confirmPassword) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Passwords do not match', 'error');
+                }
+                return;
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (typeof showLoading === 'function') {
+                showLoading(submitBtn);
+            }
+            
+            // Simulate registration (in production, this would be an API call)
+            setTimeout(() => {
+                if (typeof hideLoading === 'function') {
+                    hideLoading(submitBtn);
+                }
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('Registration successful! Please login.', 'success');
+                }
+                
+                // Switch to login tab
+                document.querySelector('[data-tab="login"]').click();
+                this.reset();
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
+

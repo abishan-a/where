@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Share your feedback and report issues to help improve public transport services">
+    <title>Feedback & Reports - TransitHub</title>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Feedback page specific styles */
+        .feedback-tabs {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--background-color);
+        }
+        
+        .tab-button {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-light);
+            transition: all var(--transition-base);
+        }
+        
+        .tab-button:hover {
+            color: var(--primary-color);
+        }
+        
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .rating-section {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .rating-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: var(--spacing-xs);
+            font-size: 2rem;
+        }
+        
+        .star-rating .star {
+            cursor: pointer;
+            color: #E0E0E0;
+            transition: color var(--transition-fast);
+        }
+        
+        .star-rating .star:hover,
+        .star-rating .star.active {
+            color: var(--accent-color);
+        }
+        
+        .feedback-history-item {
+            background-color: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .feedback-meta {
+            font-size: var(--font-size-small);
+            color: var(--text-light);
+        }
+        
+        .status-badge {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-small);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .status-pending {
+            background-color: var(--warning-color);
+            color: var(--white);
+        }
+        
+        .status-reviewed {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .status-resolved {
+            background-color: var(--success-color);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header Navigation -->
+    <header role="banner">
+        <div class="nav-container">
+            <div class="logo" aria-label="TransitHub Logo">
+                <span class="logo-icon" aria-hidden="true">🚌</span>
+                <span>TransitHub</span>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Routes</a></li>
+                    <li><a href="tracking.html">Track Bus</a></li>
+                    <li><a href="payment.html">Payment</a></li>
+                    <li><a href="feedback.html" class="active" aria-current="page">Feedback</a></li>
+                    <li><a href="driver-login.html">Driver Portal</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Page Header -->
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-content">
+                <h1 id="page-title">Feedback & Reports</h1>
+                <p>Help us improve public transport by sharing your feedback and reporting issues</p>
+            </div>
+        </section>
+
+        <!-- Feedback Forms Section -->
+        <section class="section">
+            <div class="container">
+                <div class="card">
+                    <!-- Tab Navigation -->
+                    <div class="feedback-tabs" role="tablist" aria-label="Feedback form types">
+                        <button 
+                            class="tab-button active" 
+                            data-tab="general-feedback"
+                            role="tab"
+                            aria-selected="true"
+                            aria-controls="general-feedback-panel"
+                        >
+                            General Feedback
+                        </button>
+                        <button 
+                            class="tab-button" 
+                            data-tab="traffic-alert"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="traffic-alert-panel"
+                        >
+                            Traffic Alert
+                        </button>
+                        <button 
+                            class="tab-button" 
+                            data-tab="issue-report"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="issue-report-panel"
+                        >
+                            Report Issue
+                        </button>
+                    </div>
+
+                    <!-- General Feedback Tab -->
+                    <div 
+                        id="general-feedback-panel" 
+                        class="tab-content active" 
+                        role="tabpanel"
+                        aria-labelledby="general-feedback"
+                    >
+                        <h2>Share Your Feedback</h2>
+                        <form id="general-feedback-form" data-validate aria-label="General feedback form">
+                            <div class="form-group">
+                                <label for="feedback-route" class="form-label">Route (Optional)</label>
+                                <select id="feedback-route" class="form-select">
+                                    <option value="">Select a route...</option>
+                                    <option value="138">Route 138</option>
+                                    <option value="100">Route 100</option>
+                                    <option value="177">Route 177</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Overall Rating</label>
+                                <div class="rating-section">
+                                    <span class="rating-label">Rate your experience:</span>
+                                    <div class="star-rating" id="overall-rating">
+                                        <span class="star" data-rating="1">★</span>
+                                        <span class="star" data-rating="2">★</span>
+                                        <span class="star" data-rating="3">★</span>
+                                        <span class="star" data-rating="4">★</span>
+                                        <span class="star" data-rating="5">★</span>
+                                    </div>
+                                    <input type="hidden" id="rating-value" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="feedback-subject" class="form-label">Subject</label>
+                                <input 
+                                    type="text" 
+                                    id="feedback-subject" 
+                                    class="form-input" 
+                                    placeholder="Brief summary of your feedback"
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="feedback-message" class="form-label">Your Feedback</label>
+                                <textarea 
+                                    id="feedback-message" 
+                                    class="form-textarea" 
+                                    placeholder="Please share your thoughts, suggestions, or experiences..."
+                                    required
+                                    aria-required="true"
+                                    rows="6"
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="feedback-email" class="form-label">Email (Optional)</label>
+                                <input 
+                                    type="email" 
+                                    id="feedback-email" 
+                                    class="form-input" 
+                                    placeholder="your.email@example.com"
+                                >
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                        </form>
+                    </div>
+
+                    <!-- Traffic Alert Tab -->
+                    <div 
+                        id="traffic-alert-panel" 
+                        class="tab-content" 
+                        role="tabpanel"
+                        aria-labelledby="traffic-alert"
+                    >
+                        <h2>Report Traffic Disruption</h2>
+                        <form id="traffic-alert-form" data-validate aria-label="Traffic alert form">
+                            <div class="form-group">
+                                <label for="alert-location" class="form-label">Location</label>
+                                <input 
+                                    type="text" 
+                                    id="alert-location" 
+                                    class="form-input" 
+                                    placeholder="Street name, junction, or area"
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="alert-type" class="form-label">Type of Disruption</label>
+                                <select id="alert-type" class="form-select" required aria-required="true">
+                                    <option value="">Select type...</option>
+                                    <option value="accident">Accident</option>
+                                    <option value="construction">Road Construction</option>
+                                    <option value="traffic-jam">Heavy Traffic</option>
+                                    <option value="closure">Road Closure</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="alert-severity" class="form-label">Severity</label>
+                                <select id="alert-severity" class="form-select" required aria-required="true">
+                                    <option value="">Select severity...</option>
+                                    <option value="low">Low - Minor delay</option>
+                                    <option value="medium">Medium - Significant delay</option>
+                                    <option value="high">High - Major disruption</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="alert-description" class="form-label">Description</label>
+                                <textarea 
+                                    id="alert-description" 
+                                    class="form-textarea" 
+                                    placeholder="Provide details about the traffic disruption..."
+                                    required
+                                    aria-required="true"
+                                    rows="4"
+                                ></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-accent">Submit Alert</button>
+                        </form>
+                    </div>
+
+                    <!-- Issue Report Tab -->
+                    <div 
+                        id="issue-report-panel" 
+                        class="tab-content" 
+                        role="tabpanel"
+                        aria-labelledby="issue-report"
+                    >
+                        <h2>Report an Issue</h2>
+                        <form id="issue-report-form" data-validate aria-label="Issue report form">
+                            <div class="form-group">
+                                <label for="issue-type" class="form-label">Issue Type</label>
+                                <select id="issue-type" class="form-select" required aria-required="true">
+                                    <option value="">Select issue type...</option>
+                                    <option value="bus-condition">Bus Condition</option>
+                                    <option value="driver-behavior">Driver Behavior</option>
+                                    <option value="schedule-delay">Schedule Delay</option>
+                                    <option value="safety-concern">Safety Concern</option>
+                                    <option value="payment-issue">Payment Issue</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="issue-route" class="form-label">Route</label>
+                                <select id="issue-route" class="form-select" required aria-required="true">
+                                    <option value="">Select route...</option>
+                                    <option value="138">Route 138</option>
+                                    <option value="100">Route 100</option>
+                                    <option value="177">Route 177</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="issue-bus" class="form-label">Bus Number (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    id="issue-bus" 
+                                    class="form-input" 
+                                    placeholder="e.g., bus-001"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="issue-description" class="form-label">Issue Description</label>
+                                <textarea 
+                                    id="issue-description" 
+                                    class="form-textarea" 
+                                    placeholder="Please describe the issue in detail..."
+                                    required
+                                    aria-required="true"
+                                    rows="5"
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="issue-contact" class="form-label">Contact Information (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    id="issue-contact" 
+                                    class="form-input" 
+                                    placeholder="Email or phone number"
+                                >
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Submit Report</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback History Section -->
+        <section class="section" aria-labelledby="history-title">
+            <div class="container">
+                <h2 id="history-title" class="section-title">Your Feedback History</h2>
+                <div id="feedback-history">
+                    <!-- Sample feedback items -->
+                    <article class="feedback-history-item">
+                        <div class="feedback-header">
+                            <div>
+                                <h3>Route 138 - Excellent Service</h3>
+                                <p class="feedback-meta">Submitted on Dec 10, 2024 at 3:45 PM</p>
+                            </div>
+                            <span class="status-badge status-resolved">Resolved</span>
+                        </div>
+                        <p>Great service today! The bus was on time and the driver was very courteous. Keep up the good work!</p>
+                        <div class="rating" style="margin-top: var(--spacing-sm);">
+                            <span>Rating: </span>
+                            <span style="color: var(--accent-color);">★★★★★</span>
+                        </div>
+                    </article>
+
+                    <article class="feedback-history-item">
+                        <div class="feedback-header">
+                            <div>
+                                <h3>Traffic Alert - Pettah Junction</h3>
+                                <p class="feedback-meta">Submitted on Dec 8, 2024 at 11:20 AM</p>
+                            </div>
+                            <span class="status-badge status-reviewed">Under Review</span>
+                        </div>
+                        <p>Heavy traffic congestion at Pettah Junction due to road construction. Expect delays of 15-20 minutes.</p>
+                    </article>
+
+                    <article class="feedback-history-item">
+                        <div class="feedback-header">
+                            <div>
+                                <h3>Bus Condition Issue</h3>
+                                <p class="feedback-meta">Submitted on Dec 5, 2024 at 9:15 AM</p>
+                            </div>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                        <p>Reported air conditioning issue on Route 100. Bus number bus-002 needs maintenance.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TransitHub</h4>
+                <p>Your trusted companion for public transport in Sri Lanka. Making daily commutes easier and more efficient.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Route Schedules</a></li>
+                    <li><a href="tracking.html">Bus Tracking</a></li>
+                    <li><a href="payment.html">Fare Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Email: info@transithub.lk</li>
+                    <li>Phone: +94 11 234 5678</li>
+                    <li>Address: Colombo, Sri Lanka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#" aria-label="Facebook">Facebook</a></li>
+                    <li><a href="#" aria-label="Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Instagram">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TransitHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+    
+    <!-- Feedback-specific JavaScript -->
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Update button states
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-selected', 'false');
+                });
+                this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
+                
+                // Update panel visibility
+                document.querySelectorAll('.tab-content').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                document.getElementById(`${tabId}-panel`).classList.add('active');
+            });
+        });
+
+        // Star rating functionality
+        function initializeStarRating(containerId, hiddenInputId) {
+            const container = document.getElementById(containerId);
+            const hiddenInput = document.getElementById(hiddenInputId);
+            
+            if (!container || !hiddenInput) return;
+            
+            const stars = container.querySelectorAll('.star');
+            let currentRating = 0;
+            
+            stars.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    currentRating = index + 1;
+                    hiddenInput.value = currentRating;
+                    
+                    // Update star display
+                    stars.forEach((s, i) => {
+                        if (i < currentRating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseenter', function() {
+                    const hoverRating = index + 1;
+                    stars.forEach((s, i) => {
+                        if (i < hoverRating) {
+                            s.style.color = 'var(--accent-color)';
+                        } else {
+                            s.style.color = '#E0E0E0';
+                        }
+                    });
+                });
+            });
+            
+            container.addEventListener('mouseleave', function() {
+                stars.forEach((s, i) => {
+                    if (i < currentRating) {
+                        s.style.color = 'var(--accent-color)';
+                    } else {
+                        s.style.color = '#E0E0E0';
+                    }
+                });
+            });
+        }
+
+        // Initialize star ratings
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeStarRating('overall-rating', 'rating-value');
+        });
+
+        // Handle form submissions
+        document.getElementById('general-feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleFormSubmission(this, 'Feedback submitted successfully!');
+        });
+
+        document.getElementById('traffic-alert-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleFormSubmission(this, 'Traffic alert submitted! Thank you for helping other commuters.');
+        });
+
+        document.getElementById('issue-report-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleFormSubmission(this, 'Issue report submitted. We will review it shortly.');
+        });
+
+        function handleFormSubmission(form, successMessage) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (typeof showLoading === 'function') {
+                showLoading(submitBtn);
+            }
+            
+            // Simulate form submission
+            setTimeout(() => {
+                if (typeof hideLoading === 'function') {
+                    hideLoading(submitBtn);
+                }
+                
+                if (typeof showNotification === 'function') {
+                    showNotification(successMessage, 'success');
+                }
+                
+                // Reset form
+                form.reset();
+                document.querySelectorAll('.star-rating .star').forEach(star => {
+                    star.classList.remove('active');
+                });
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track buses in real-time with TransitHub's live bus tracking system">
+    <title>Live Bus Tracking - TransitHub</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Tracking page specific styles */
+        .tracking-container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: var(--spacing-lg);
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+        
+        .tracking-map-container {
+            position: relative;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+        
+        #tracking-map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .tracking-controls {
+            background-color: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            align-items: end;
+        }
+        
+        .bus-item {
+            background-color: var(--white);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-sm);
+            transition: transform var(--transition-base), box-shadow var(--transition-base);
+        }
+        
+        .bus-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .bus-item.active {
+            border: 2px solid var(--primary-color);
+            background-color: rgba(30, 136, 229, 0.05);
+        }
+        
+        .bus-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .bus-item-header h4 {
+            margin: 0;
+            font-size: var(--font-size-h4);
+        }
+        
+        .bus-item-details p {
+            margin: var(--spacing-xs) 0;
+            font-size: var(--font-size-small);
+        }
+        
+        .bus-item-details .eta {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--primary-color);
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        @media (max-width: 1023px) {
+            .tracking-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .tracking-map-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header Navigation -->
+    <header role="banner">
+        <div class="nav-container">
+            <div class="logo" aria-label="TransitHub Logo">
+                <span class="logo-icon" aria-hidden="true">🚌</span>
+                <span>TransitHub</span>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Routes</a></li>
+                    <li><a href="tracking.html" class="active" aria-current="page">Track Bus</a></li>
+                    <li><a href="payment.html">Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                    <li><a href="driver-login.html">Driver Portal</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Page Header -->
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-content">
+                <h1 id="page-title">Live Bus Tracking</h1>
+                <p>Track buses in real-time and never miss your ride</p>
+            </div>
+        </section>
+
+        <!-- Tracking Controls -->
+        <section class="section">
+            <div class="container">
+                <div class="tracking-controls">
+                    <div class="controls-grid">
+                        <div class="form-group">
+                            <label for="route-filter" class="form-label">Filter by Route</label>
+                            <select id="route-filter" class="form-select" aria-label="Filter buses by route">
+                                <option value="all">All Routes</option>
+                                <option value="138">Route 138</option>
+                                <option value="100">Route 100</option>
+                                <option value="177">Route 177</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="auto-refresh" 
+                                    checked
+                                    aria-label="Enable auto-refresh"
+                                >
+                                Auto-refresh (30s)
+                            </label>
+                        </div>
+                        <button id="refresh-btn" class="btn btn-primary">Refresh Now</button>
+                        <button onclick="getUserLocation()" class="btn btn-secondary">My Location</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracking Map and Bus List -->
+        <section class="section">
+            <div class="container">
+                <div class="tracking-container">
+                    <!-- Sidebar: Bus List -->
+                    <aside class="sidebar" role="complementary" aria-label="Nearby buses">
+                        <div class="sidebar-header">
+                            <h3>Nearby Buses</h3>
+                            <button class="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+                        </div>
+                        <div id="bus-list" role="list" aria-label="List of nearby buses">
+                            <!-- Bus items will be populated by JavaScript -->
+                            <p class="text-center">Loading buses...</p>
+                        </div>
+                    </aside>
+
+                    <!-- Main: Tracking Map -->
+                    <div class="tracking-map-container">
+                        <div id="tracking-map" role="application" aria-label="Interactive map showing real-time bus locations">
+                            <!-- Map will be initialized by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TransitHub</h4>
+                <p>Your trusted companion for public transport in Sri Lanka. Making daily commutes easier and more efficient.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Route Schedules</a></li>
+                    <li><a href="tracking.html">Bus Tracking</a></li>
+                    <li><a href="payment.html">Fare Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Email: info@transithub.lk</li>
+                    <li>Phone: +94 11 234 5678</li>
+                    <li>Address: Colombo, Sri Lanka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#" aria-label="Facebook">Facebook</a></li>
+                    <li><a href="#" aria-label="Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Instagram">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TransitHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/map.js"></script>
+    <script src="js/tracking.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+

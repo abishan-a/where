@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Driver dashboard for bus registration and tracking">
+    <title>Driver Dashboard - TransitHub</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Driver dashboard specific styles */
+        .dashboard-header {
+            background-color: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .driver-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--border-radius-round);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: var(--font-size-h3);
+            font-weight: var(--font-weight-bold);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: var(--spacing-xl);
+        }
+        
+        .dashboard-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        
+        .bus-status-card {
+            background-color: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: var(--border-radius-round);
+            margin-right: var(--spacing-sm);
+        }
+        
+        .status-active {
+            background-color: var(--success-color);
+        }
+        
+        .status-inactive {
+            background-color: var(--text-light);
+        }
+        
+        .status-on-route {
+            background-color: var(--primary-color);
+        }
+        
+        .tracking-map-container {
+            background-color: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            height: 600px;
+        }
+        
+        #driver-tracking-map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .bus-list-item {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--background-color);
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+        }
+        
+        .bus-list-item:hover {
+            background-color: var(--background-color);
+        }
+        
+        .bus-list-item.active {
+            background-color: rgba(30, 136, 229, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        @media (max-width: 1023px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header Navigation -->
+    <header role="banner">
+        <div class="nav-container">
+            <div class="logo" aria-label="TransitHub Logo">
+                <span class="logo-icon" aria-hidden="true">🚌</span>
+                <span>TransitHub</span>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="driver-dashboard.html" class="active" aria-current="page">Dashboard</a></li>
+                    <li><a href="bus-registration.html">Register Bus</a></li>
+                    <li><a href="#" onclick="logoutDriver(); return false;">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Dashboard Header -->
+        <section class="section">
+            <div class="container">
+                <div class="dashboard-header">
+                    <div class="driver-info">
+                        <div class="driver-avatar">JD</div>
+                        <div>
+                            <h3 style="margin: 0;">John Doe</h3>
+                            <p style="margin: 0; color: var(--text-light); font-size: var(--font-size-small);">
+                                License: DL-12345
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="bus-registration.html" class="btn btn-primary">Register New Bus</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Content -->
+        <section class="section">
+            <div class="container">
+                <div class="dashboard-grid">
+                    <!-- Sidebar: Bus List and Status -->
+                    <aside class="dashboard-sidebar" role="complementary">
+                        <!-- Bus Status Overview -->
+                        <div class="bus-status-card">
+                            <h3>Bus Status Overview</h3>
+                            <div style="margin-top: var(--spacing-md);">
+                                <p>
+                                    <span class="status-indicator status-on-route"></span>
+                                    <strong>On Route:</strong> 2 buses
+                                </p>
+                                <p>
+                                    <span class="status-indicator status-active"></span>
+                                    <strong>Active:</strong> 3 buses
+                                </p>
+                                <p>
+                                    <span class="status-indicator status-inactive"></span>
+                                    <strong>Inactive:</strong> 1 bus
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Registered Buses List -->
+                        <div class="card">
+                            <h3>My Buses</h3>
+                            <div id="driver-bus-list">
+                                <!-- Bus list items will be populated by JavaScript -->
+                                <div class="bus-list-item active" data-bus-id="bus-001" onclick="selectBus('bus-001')">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>bus-001</strong>
+                                            <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-small); color: var(--text-light);">
+                                                Route 138 - Fort to Nugegoda
+                                            </p>
+                                        </div>
+                                        <span class="status-indicator status-on-route"></span>
+                                    </div>
+                                </div>
+                                <div class="bus-list-item" data-bus-id="bus-002" onclick="selectBus('bus-002')">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>bus-002</strong>
+                                            <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-small); color: var(--text-light);">
+                                                Route 100 - Kollupitiya to Dehiwala
+                                            </p>
+                                        </div>
+                                        <span class="status-indicator status-on-route"></span>
+                                    </div>
+                                </div>
+                                <div class="bus-list-item" data-bus-id="bus-003" onclick="selectBus('bus-003')">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>bus-003</strong>
+                                            <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-small); color: var(--text-light);">
+                                                Route 177 - Bambalapitiya to Pettah
+                                            </p>
+                                        </div>
+                                        <span class="status-indicator status-active"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card">
+                            <h3>Quick Actions</h3>
+                            <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-md);">
+                                <button class="btn btn-primary btn-small" onclick="startRoute()">
+                                    Start Route
+                                </button>
+                                <button class="btn btn-secondary btn-small" onclick="endRoute()">
+                                    End Route
+                                </button>
+                                <button class="btn btn-accent btn-small" onclick="reportIssue()">
+                                    Report Issue
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Main: Tracking Map -->
+                    <div class="tracking-map-container">
+                        <div id="driver-tracking-map" role="application" aria-label="Driver bus tracking map">
+                            <!-- Map will be initialized by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bus Details Section -->
+        <section class="section">
+            <div class="container">
+                <div class="card">
+                    <h2>Current Bus Details</h2>
+                    <div id="bus-details" class="two-column" style="margin-top: var(--spacing-lg);">
+                        <div>
+                            <h4>Bus Information</h4>
+                            <p><strong>Bus ID:</strong> <span id="detail-bus-id">bus-001</span></p>
+                            <p><strong>Route:</strong> <span id="detail-route">Route 138</span></p>
+                            <p><strong>Status:</strong> <span id="detail-status">On Route</span></p>
+                            <p><strong>Current Location:</strong> <span id="detail-location">Pettah Bus Stand</span></p>
+                        </div>
+                        <div>
+                            <h4>Route Information</h4>
+                            <p><strong>Origin:</strong> <span id="detail-origin">Fort Bus Stand</span></p>
+                            <p><strong>Destination:</strong> <span id="detail-destination">Nugegoda</span></p>
+                            <p><strong>Next Stop:</strong> <span id="detail-next-stop">Maradana Station</span></p>
+                            <p><strong>ETA to Next Stop:</strong> <span id="detail-eta">5 minutes</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TransitHub</h4>
+                <p>Your trusted companion for public transport in Sri Lanka. Making daily commutes easier and more efficient.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Route Schedules</a></li>
+                    <li><a href="tracking.html">Bus Tracking</a></li>
+                    <li><a href="payment.html">Fare Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Email: info@transithub.lk</li>
+                    <li>Phone: +94 11 234 5678</li>
+                    <li>Address: Colombo, Sri Lanka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#" aria-label="Facebook">Facebook</a></li>
+                    <li><a href="#" aria-label="Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Instagram">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TransitHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/map.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Driver dashboard specific JavaScript -->
+    <script>
+        // Check if driver is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('driverLoggedIn');
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                window.location.href = 'driver-login.html';
+                return;
+            }
+            
+            // Initialize driver tracking map
+            initDriverTrackingMap();
+            loadDriverBuses();
+        });
+
+        // Initialize driver tracking map
+        function initDriverTrackingMap() {
+            if (typeof L === 'undefined') {
+                console.error('Leaflet library not loaded');
+                return;
+            }
+            
+            const colomboCenter = [6.9271, 79.8612];
+            
+            window.driverMap = L.map('driver-tracking-map', {
+                center: colomboCenter,
+                zoom: 13,
+                zoomControl: true,
+                attributionControl: true
+            });
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(window.driverMap);
+            
+            // Add current bus location
+            addDriverBusLocation();
+        }
+
+        // Add driver's bus location to map
+        function addDriverBusLocation() {
+            if (!window.driverMap) return;
+            
+            // Sample bus location (in production, this would come from GPS/API)
+            const busLocation = [6.9200, 79.8600]; // Pettah area
+            
+            const busMarker = L.marker(busLocation, {
+                icon: L.divIcon({
+                    className: 'driver-bus-marker',
+                    html: '<div style="background: #43A047; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                })
+            }).addTo(window.driverMap);
+            
+            busMarker.bindPopup(`
+                <div style="min-width: 150px;">
+                    <strong>Your Bus: bus-001</strong><br>
+                    <small>Route 138</small><br>
+                    <small>Status: On Route</small>
+                </div>
+            `);
+            
+            window.driverMap.setView(busLocation, 15);
+        }
+
+        // Load driver's registered buses
+        function loadDriverBuses() {
+            // In production, this would fetch from API
+            // For now, using sample data
+            const buses = [
+                { id: 'bus-001', route: 'Route 138', status: 'on-route', location: 'Pettah Bus Stand' },
+                { id: 'bus-002', route: 'Route 100', status: 'on-route', location: 'Fort Bus Stand' },
+                { id: 'bus-003', route: 'Route 177', status: 'active', location: 'Bambalapitiya' }
+            ];
+            
+            // Buses are already in HTML, just update details
+            updateBusDetails('bus-001');
+        }
+
+        // Select bus from list
+        function selectBus(busId) {
+            // Update active state
+            document.querySelectorAll('.bus-list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-bus-id="${busId}"]`).classList.add('active');
+            
+            // Update bus details
+            updateBusDetails(busId);
+            
+            // Update map view (in production, would center on actual bus location)
+            if (window.driverMap) {
+                // Sample: center on different location based on bus
+                const locations = {
+                    'bus-001': [6.9200, 79.8600],
+                    'bus-002': [6.9350, 79.8500],
+                    'bus-003': [6.9500, 79.8300]
+                };
+                
+                if (locations[busId]) {
+                    window.driverMap.setView(locations[busId], 15);
+                }
+            }
+        }
+
+        // Update bus details display
+        function updateBusDetails(busId) {
+            const busData = {
+                'bus-001': {
+                    route: 'Route 138',
+                    status: 'On Route',
+                    location: 'Pettah Bus Stand',
+                    origin: 'Fort Bus Stand',
+                    destination: 'Nugegoda',
+                    nextStop: 'Maradana Station',
+                    eta: '5 minutes'
+                },
+                'bus-002': {
+                    route: 'Route 100',
+                    status: 'On Route',
+                    location: 'Fort Bus Stand',
+                    origin: 'Kollupitiya',
+                    destination: 'Dehiwala',
+                    nextStop: 'Pettah Bus Stand',
+                    eta: '8 minutes'
+                },
+                'bus-003': {
+                    route: 'Route 177',
+                    status: 'Active',
+                    location: 'Bambalapitiya',
+                    origin: 'Bambalapitiya',
+                    destination: 'Pettah',
+                    nextStop: 'Kollupitiya',
+                    eta: '3 minutes'
+                }
+            };
+            
+            const data = busData[busId];
+            if (data) {
+                document.getElementById('detail-bus-id').textContent = busId;
+                document.getElementById('detail-route').textContent = data.route;
+                document.getElementById('detail-status').textContent = data.status;
+                document.getElementById('detail-location').textContent = data.location;
+                document.getElementById('detail-origin').textContent = data.origin;
+                document.getElementById('detail-destination').textContent = data.destination;
+                document.getElementById('detail-next-stop').textContent = data.nextStop;
+                document.getElementById('detail-eta').textContent = data.eta;
+            }
+        }
+
+        // Start route
+        function startRoute() {
+            if (typeof showNotification === 'function') {
+                showNotification('Route started! Your bus is now being tracked.', 'success');
+            }
+        }
+
+        // End route
+        function endRoute() {
+            if (typeof showNotification === 'function') {
+                showNotification('Route ended. Thank you for your service!', 'info');
+            }
+        }
+
+        // Report issue
+        function reportIssue() {
+            window.location.href = 'feedback.html';
+        }
+
+        // Logout driver
+        function logoutDriver() {
+            localStorage.removeItem('driverLoggedIn');
+            localStorage.removeItem('driverLicense');
+            window.location.href = 'driver-login.html';
+        }
+
+        // Make functions globally accessible
+        window.selectBus = selectBus;
+        window.startRoute = startRoute;
+        window.endRoute = endRoute;
+        window.reportIssue = reportIssue;
+        window.logoutDriver = logoutDriver;
+    </script>
+</body>
+</html>
+

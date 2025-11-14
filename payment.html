@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Purchase digital bus tickets with TransitHub's secure payment system">
+    <title>Fare Payment - TransitHub</title>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Payment page specific styles */
+        .payment-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .payment-form-section {
+            background-color: var(--white);
+            padding: var(--spacing-xl);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .ticket-preview {
+            background-color: var(--white);
+            padding: var(--spacing-xl);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 100px;
+        }
+        
+        .ticket-preview-header {
+            text-align: center;
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--background-color);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .ticket-details {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .ticket-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--background-color);
+        }
+        
+        .ticket-detail-row:last-child {
+            border-bottom: none;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-large);
+            color: var(--primary-color);
+        }
+        
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .payment-method {
+            border: 2px solid #E0E0E0;
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        
+        .payment-method:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(30, 136, 229, 0.05);
+        }
+        
+        .payment-method.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(30, 136, 229, 0.1);
+        }
+        
+        .transaction-history {
+            margin-top: var(--spacing-xxl);
+        }
+        
+        .transaction-item {
+            background-color: var(--white);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .transaction-info h4 {
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+        
+        .transaction-info p {
+            margin: 0;
+            font-size: var(--font-size-small);
+            color: var(--text-light);
+        }
+        
+        @media (max-width: 767px) {
+            .payment-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .ticket-preview {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header Navigation -->
+    <header role="banner">
+        <div class="nav-container">
+            <div class="logo" aria-label="TransitHub Logo">
+                <span class="logo-icon" aria-hidden="true">🚌</span>
+                <span>TransitHub</span>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav role="navigation" aria-label="Main navigation">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Routes</a></li>
+                    <li><a href="tracking.html">Track Bus</a></li>
+                    <li><a href="payment.html" class="active" aria-current="page">Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                    <li><a href="driver-login.html">Driver Portal</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        <!-- Page Header -->
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-content">
+                <h1 id="page-title">Digital Ticketing</h1>
+                <p>Purchase your bus tickets online with secure payment</p>
+            </div>
+        </section>
+
+        <!-- Payment Form Section -->
+        <section class="section">
+            <div class="container">
+                <div class="payment-container">
+                    <!-- Payment Form -->
+                    <div class="payment-form-section">
+                        <h2>Purchase Ticket</h2>
+                        <form id="payment-form" data-validate role="form" aria-label="Payment form">
+                            <!-- Route Selection -->
+                            <div class="form-group">
+                                <label for="route-select" class="form-label">Select Route</label>
+                                <select id="route-select" class="form-select" required aria-required="true">
+                                    <option value="">Choose a route...</option>
+                                    <option value="138">Route 138 - Fort to Nugegoda</option>
+                                    <option value="100">Route 100 - Kollupitiya to Dehiwala</option>
+                                    <option value="177">Route 177 - Bambalapitiya to Pettah</option>
+                                </select>
+                            </div>
+
+                            <!-- Origin -->
+                            <div class="form-group">
+                                <label for="origin-select" class="form-label">Origin</label>
+                                <select id="origin-select" class="form-select" required aria-required="true">
+                                    <option value="">Select origin...</option>
+                                </select>
+                            </div>
+
+                            <!-- Destination -->
+                            <div class="form-group">
+                                <label for="destination-select" class="form-label">Destination</label>
+                                <select id="destination-select" class="form-select" required aria-required="true">
+                                    <option value="">Select destination...</option>
+                                </select>
+                            </div>
+
+                            <!-- Number of Tickets -->
+                            <div class="form-group">
+                                <label for="ticket-count" class="form-label">Number of Tickets</label>
+                                <input 
+                                    type="number" 
+                                    id="ticket-count" 
+                                    class="form-input" 
+                                    min="1" 
+                                    max="10" 
+                                    value="1" 
+                                    required
+                                    aria-required="true"
+                                >
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="form-group">
+                                <label class="form-label">Payment Method</label>
+                                <div class="payment-methods">
+                                    <div class="payment-method" data-method="card" onclick="selectPaymentMethod('card')">
+                                        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm);">💳</div>
+                                        <div>Credit/Debit Card</div>
+                                    </div>
+                                    <div class="payment-method" data-method="mobile" onclick="selectPaymentMethod('mobile')">
+                                        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm);">📱</div>
+                                        <div>Mobile Payment</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="payment-method" required>
+                            </div>
+
+                            <!-- Card Details (shown when card is selected) -->
+                            <div id="card-details" class="hidden">
+                                <div class="form-group">
+                                    <label for="card-number" class="form-label">Card Number</label>
+                                    <input 
+                                        type="text" 
+                                        id="card-number" 
+                                        class="form-input" 
+                                        placeholder="1234 5678 9012 3456"
+                                        maxlength="19"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-expiry" class="form-label">Expiry Date</label>
+                                    <input 
+                                        type="text" 
+                                        id="card-expiry" 
+                                        class="form-input" 
+                                        placeholder="MM/YY"
+                                        maxlength="5"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-cvv" class="form-label">CVV</label>
+                                    <input 
+                                        type="text" 
+                                        id="card-cvv" 
+                                        class="form-input" 
+                                        placeholder="123"
+                                        maxlength="3"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Mobile Payment Details (shown when mobile is selected) -->
+                            <div id="mobile-details" class="hidden">
+                                <div class="form-group">
+                                    <label for="mobile-number" class="form-label">Mobile Number</label>
+                                    <input 
+                                        type="tel" 
+                                        id="mobile-number" 
+                                        class="form-input" 
+                                        placeholder="+94 77 123 4567"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
+                                Purchase Ticket
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Ticket Preview -->
+                    <div class="ticket-preview">
+                        <div class="ticket-preview-header">
+                            <h3>Ticket Preview</h3>
+                        </div>
+                        <div class="ticket-details">
+                            <div class="ticket-detail-row">
+                                <span>Route:</span>
+                                <span id="preview-route">-</span>
+                            </div>
+                            <div class="ticket-detail-row">
+                                <span>Origin:</span>
+                                <span id="preview-origin">-</span>
+                            </div>
+                            <div class="ticket-detail-row">
+                                <span>Destination:</span>
+                                <span id="preview-destination">-</span>
+                            </div>
+                            <div class="ticket-detail-row">
+                                <span>Quantity:</span>
+                                <span id="preview-quantity">1</span>
+                            </div>
+                            <div class="ticket-detail-row">
+                                <span>Fare per ticket:</span>
+                                <span id="preview-fare">LKR 0</span>
+                            </div>
+                            <div class="ticket-detail-row">
+                                <span>Total Amount:</span>
+                                <span id="preview-total">LKR 0</span>
+                            </div>
+                        </div>
+                        <div class="qr-code" id="qr-code-placeholder">
+                            QR Code will appear here after purchase
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transaction History Section -->
+        <section class="section transaction-history" aria-labelledby="history-title">
+            <div class="container">
+                <h2 id="history-title" class="section-title">Transaction History</h2>
+                <div id="transaction-list">
+                    <!-- Sample transaction items -->
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <h4>Route 138 - Fort to Nugegoda</h4>
+                            <p>Purchased on Dec 15, 2024 at 10:30 AM</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-success">Completed</span>
+                            <p style="text-align: right; margin-top: var(--spacing-xs); font-weight: bold;">LKR 50</p>
+                        </div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <h4>Route 100 - Kollupitiya to Dehiwala</h4>
+                            <p>Purchased on Dec 14, 2024 at 2:15 PM</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-success">Completed</span>
+                            <p style="text-align: right; margin-top: var(--spacing-xs); font-weight: bold;">LKR 60</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TransitHub</h4>
+                <p>Your trusted companion for public transport in Sri Lanka. Making daily commutes easier and more efficient.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="routes.html">Route Schedules</a></li>
+                    <li><a href="tracking.html">Bus Tracking</a></li>
+                    <li><a href="payment.html">Fare Payment</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Email: info@transithub.lk</li>
+                    <li>Phone: +94 11 234 5678</li>
+                    <li>Address: Colombo, Sri Lanka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#" aria-label="Facebook">Facebook</a></li>
+                    <li><a href="#" aria-label="Twitter">Twitter</a></li>
+                    <li><a href="#" aria-label="Instagram">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TransitHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+    
+    <!-- Payment-specific JavaScript -->
+    <script>
+        // Route and fare data
+        const routeData = {
+            '138': {
+                name: 'Route 138',
+                stops: ['Fort Bus Stand', 'Pettah Bus Stand', 'Maradana Station', 'Borella Junction', 'Nugegoda'],
+                fares: [20, 30, 40, 50]
+            },
+            '100': {
+                name: 'Route 100',
+                stops: ['Kollupitiya', 'Fort Bus Stand', 'Pettah Bus Stand', 'Maradana Station', 'Dehiwala'],
+                fares: [25, 35, 45, 60]
+            },
+            '177': {
+                name: 'Route 177',
+                stops: ['Bambalapitiya', 'Kollupitiya', 'Fort Bus Stand', 'Pettah Bus Stand'],
+                fares: [20, 30, 45]
+            }
+        };
+
+        // Select payment method
+        function selectPaymentMethod(method) {
+            document.getElementById('payment-method').value = method;
+            
+            // Update UI
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('selected');
+            
+            // Show/hide relevant fields
+            document.getElementById('card-details').classList.toggle('hidden', method !== 'card');
+            document.getElementById('mobile-details').classList.toggle('hidden', method !== 'mobile');
+        }
+
+        // Update ticket preview
+        function updateTicketPreview() {
+            const route = document.getElementById('route-select').value;
+            const origin = document.getElementById('origin-select').value;
+            const destination = document.getElementById('destination-select').value;
+            const quantity = parseInt(document.getElementById('ticket-count').value) || 1;
+            
+            if (route && origin && destination) {
+                const routeInfo = routeData[route];
+                const originIndex = routeInfo.stops.indexOf(origin);
+                const destIndex = routeInfo.stops.indexOf(destination);
+                
+                if (originIndex >= 0 && destIndex >= 0 && destIndex > originIndex) {
+                    const fareIndex = destIndex - originIndex - 1;
+                    const farePerTicket = routeInfo.fares[fareIndex] || routeInfo.fares[routeInfo.fares.length - 1];
+                    const total = farePerTicket * quantity;
+                    
+                    document.getElementById('preview-route').textContent = routeInfo.name;
+                    document.getElementById('preview-origin').textContent = origin;
+                    document.getElementById('preview-destination').textContent = destination;
+                    document.getElementById('preview-quantity').textContent = quantity;
+                    document.getElementById('preview-fare').textContent = `LKR ${farePerTicket}`;
+                    document.getElementById('preview-total').textContent = `LKR ${total}`;
+                }
+            }
+        }
+
+        // Update stops when route changes
+        document.getElementById('route-select').addEventListener('change', function() {
+            const route = this.value;
+            const originSelect = document.getElementById('origin-select');
+            const destSelect = document.getElementById('destination-select');
+            
+            // Clear existing options
+            originSelect.innerHTML = '<option value="">Select origin...</option>';
+            destSelect.innerHTML = '<option value="">Select destination...</option>';
+            
+            if (route && routeData[route]) {
+                const stops = routeData[route].stops;
+                stops.forEach((stop, index) => {
+                    // Origin can be any stop except the last
+                    if (index < stops.length - 1) {
+                        const option = document.createElement('option');
+                        option.value = stop;
+                        option.textContent = stop;
+                        originSelect.appendChild(option);
+                    }
+                    
+                    // Destination can be any stop after origin
+                    stops.forEach((destStop, destIndex) => {
+                        if (destIndex > 0) {
+                            const option = document.createElement('option');
+                            option.value = destStop;
+                            option.textContent = destStop;
+                            destSelect.appendChild(option);
+                        }
+                    });
+                });
+            }
+            
+            updateTicketPreview();
+        });
+
+        // Update preview when inputs change
+        document.getElementById('origin-select').addEventListener('change', updateTicketPreview);
+        document.getElementById('destination-select').addEventListener('change', updateTicketPreview);
+        document.getElementById('ticket-count').addEventListener('input', updateTicketPreview);
+
+        // Handle form submission
+        document.getElementById('payment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (typeof showLoading === 'function') {
+                showLoading(submitBtn);
+            }
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                // Generate QR code placeholder
+                const qrCode = document.getElementById('qr-code-placeholder');
+                qrCode.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="width: 200px; height: 200px; margin: 0 auto; background: #000; display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; padding: 10px;">
+                            ${Array(100).fill(0).map(() => 
+                                `<div style="background: ${Math.random() > 0.5 ? '#fff' : '#000'};"></div>`
+                            ).join('')}
+                        </div>
+                        <p style="margin-top: var(--spacing-md); font-weight: bold;">Ticket #${Date.now()}</p>
+                        <p style="font-size: var(--font-size-small);">Scan this QR code when boarding</p>
+                    </div>
+                `;
+                
+                if (typeof hideLoading === 'function') {
+                    hideLoading(submitBtn);
+                }
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('Ticket purchased successfully!', 'success');
+                }
+                
+                // Reset form
+                this.reset();
+                document.getElementById('payment-method').value = '';
+                document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+                document.getElementById('card-details').classList.add('hidden');
+                document.getElementById('mobile-details').classList.add('hidden');
+                updateTicketPreview();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
+
